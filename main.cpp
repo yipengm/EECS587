@@ -33,14 +33,19 @@ int main(int argc, char **argv){
 
     int ms = (m%process_rown==0)?(m/process_rown):floor(m/process_rown)+1;			//the size of every subarray on each processor
     int ns = (n%process_coln==0)?(n/process_coln):floor(n/process_coln)+1;
-    //int m = ceil(n/square_p);
-    
+
+    double **F_map = new double*[ms+2];
+    for(int i = 0; i < ms+2;i++){
+        F_map[i] = new double[ns+2];
+    }
+
+    for(int i = 0;i<ms+2;i++){
+        for(int j = 0;j<ns+2;j++){
+            F_map[i][j] = 0;
+        }
+    }
 
 
-    //double A_local[ms+2][ns+2] = {0};			//from 0 to m;every processor has a local A array which is a subarray of large array A
-    //double z[ms][ns] = {0};
-    
-    
     double **A_local = new double*[ms+2];
     for(int i = 0; i < ms+2;i++){
         A_local[i] = new double[ns+2];
@@ -51,9 +56,6 @@ int main(int argc, char **argv){
             A_local[i][j] = 0;
         }
     }
-
-
-
 
     double **z = new double*[ms];
     for(int i = 0; i < ms;i++){
@@ -67,23 +69,24 @@ int main(int argc, char **argv){
     }
     
 
-
     int pid_x;								//the row id of each processor
     int pid_y;								//the column id of each processor
 
     double starttime;						//the start time of 10 times iterations
     double endtime;							//the end time of 10 times iterations
+
+    double endtime1;
+    double endtime2;
+
     double elapsedtime;						//the elapsed time of this MPI program
+
+    double elapsedtime1;
+    double elapsedtime2;
 
     int counts=0;							//count the number of the iterations
 
-  
-
-
     MPI_Status status;						//MPI status for MPI_Recv function
 
-
-    
     pid_x=floor(id/process_coln);
     pid_y=id-process_coln*pid_x;
     //cout<<"id"<<id<<"pid_x"<<pid_x<<"pid_y"<<pid_y<<endl;
@@ -147,40 +150,17 @@ int main(int argc, char **argv){
         }
     }
     MPI_Barrier(MPI_COMM_WORLD);
-/*    
-    double presum = 0;
-    for(int i = 0; i<ms+2;i++){
-        for(int j = 0 ; j < ns+2;j++){
-            presum = presum + A_local[i][j];
-        }
-    }
-    cout<<"presum"<<presum<<endl;
-*/    
+    int id_snip = 0;
+    int i_length_in = i_length;
+    int j_length_in = j_length;
     if(id==0){
         starttime=MPI_Wtime();
         cout<<"The 10 tims iterations start at "<<starttime<<endl;
     }
 
 
-/*
-    if (id==0){
-        double a = 1;
-        cout<<'1'<<id<<endl;
-        MPI_Ssend(&a,1,MPI_DOUBLE,1,123,MPI_COMM_WORLD);
 
-        cout<<'2'<<id<<endl;
-    }
-
-    if (id==1){
-        double ra;
-        MPI_Recv(&ra,1,MPI_DOUBLE,0,123,MPI_COMM_WORLD,&status);
-        b = ra;
-    }
-*/
-    //cout<<"id"<<id<<"a"<<a<<"b"<<b<<endl;
-
-    int id_snip = 0;
-
+    
     //10 times iterations
     while(counts<10){
         i_length = ms;
@@ -252,35 +232,45 @@ int main(int argc, char **argv){
         if(UP){
             MPI_Recv(&receive_from_top,j_length,MPI_DOUBLE,(pid_x-1)*process_coln+pid_y,3,MPI_COMM_WORLD,&status);
         }
+        i_length_in = i_length;
+        j_length_in = j_length;
+        if(RT)  j_length_in = j_length+1; //Now ns+1 or n+ns-ns*process_coln
+        if(DW)  i_length_in = i_length+1; //Now ms+1 or m+ms-ms*process_rown
 
-        if(RT)  j_length++; //Now ns+1 or n+ns-ns*process_coln
-        if(DW)  i_length++; //Now ms+1 or m+ms-ms*process_rown
-
-        for(int i = i_start;i<i_length;i++){
+        for(int i = i_start;i<i_length_in;i++){
             if(LF) A_local[i][0] = receive_from_left[i-1];
             if(RT) A_local[i][ns+1] = receive_from_right[i-1];
         }
-        for(int j = j_start;j<j_length;j++){
+        for(int j = j_start;j<j_length_in;j++){
             if(UP) A_local[0][j] = receive_from_top[j-1];
             if(DW) A_local[ms+1][j] = receive_from_bottom[j-1];
         }
 
-        //if(id == id_snip) cout<<"i_start"<<i_start<<"i_length"<<i_length<<endl;
-        //if(id == id_snip) cout<<"j_start"<<j_start<<"j_length"<<j_length<<endl;
-        for(int i = i_start;i<i_length;i++){
-            for(int j = j_start;j<j_length;j++){
-                double temp = (f(A_local[i+1][j])+f(A_local[i][j+1])+f(A_local[i][j])+f(A_local[i-1][j])+f(A_local[i][j-1]))/5;
+
+
+
+        //endtime1 = MPI_Wtime();
+        for(int i = i_start-1;i<i_length_in+1;i++){
+            for(int j = j_start-1;j<j_length_in+1;j++){
+                F_map[i][j] = f(A_local[i][j]);
+            }
+        }
+        //endtime2=MPI_Wtime();
+        for(int i = i_start;i<i_length_in;i++){
+            for(int j = j_start;j<j_length_in;j++){
+                double temp = (F_map[i+1][j]+F_map[i][j+1]+F_map[i][j]+F_map[i-1][j]+F_map[i][j-1])/5;
                 z[i-1][j-1] = temp>100?100:(temp<-100?-100:temp);
             }
         }
-        //if(id == id_snip) cout<<"ZZZZ"<<z[1][1]<<endl;
-        for(int i = i_start;i<i_length;i++){
-            for(int j = j_start;j<j_length;j++){
+        
+        for(int i = i_start;i<i_length_in;i++){
+            for(int j = j_start;j<j_length_in;j++){
                 A_local[i][j] = z[i-1][j-1];
             }
         }
 
     }
+    
     double sum_local;
     double sum_local_square;
     double sum_temp;
@@ -290,36 +280,10 @@ int main(int argc, char **argv){
 
     // get the sum of A;
     // fisrt get the local sum of each processor
-    if(pid_x!=process_rown-1&&pid_y!=process_coln-1){
-        for(int i=1;i<ms+1;i++){
-            for(int j=1;j<ns+1;j++){
-                sum_local=sum_local+A_local[i][j];
-                sum_local_square = sum_local_square+A_local[i][j]*A_local[i][j];
-            }
-        }
-    }
-    else if(pid_x==process_rown-1&&pid_y!=process_coln-1){
-        for(int i=1;i<m+ms-ms*process_rown+1;i++){
-            for(int j=1;j<ns+1;j++){
-                sum_local=sum_local+A_local[i][j];
-                sum_local_square = sum_local_square+A_local[i][j]*A_local[i][j];
-            }
-        }
-    }
-    else if(pid_x!=process_rown-1&&pid_y==process_coln-1){
-        for(int i=1;i<ms+1;i++){
-            for(int j=1;j<n+ns-ns*process_coln+1;j++){
-                sum_local=sum_local+A_local[i][j];
-                sum_local_square = sum_local_square+A_local[i][j]*A_local[i][j];
-            }
-        }
-    }
-    else{
-        for(int i=1;i<m+ms-ms*process_rown+1;i++){
-            for(int j=1;j<n+ns-ns*process_coln+1;j++){
-                sum_local=sum_local+A_local[i][j];
-                sum_local_square = sum_local_square+A_local[i][j]*A_local[i][j]; 
-            }
+    for(int i=1;i<i_length+1;i++){
+        for(int j=1;j<j_length+1;j++){
+            sum_local=sum_local+A_local[i][j];
+            sum_local_square = sum_local_square+A_local[i][j]*A_local[i][j];
         }
     }
 
@@ -352,7 +316,13 @@ int main(int argc, char **argv){
         sum_square = sum_local_square;
         endtime=MPI_Wtime();
         elapsedtime=endtime-starttime;
+        //elapsedtime1=endtime1-starttime;
+        //elapsedtime2=endtime2-endtime1;
         cout<<"The elapsed time is  "<<elapsedtime<<endl;
+        //cout<<"The endtime1-starttime is  "<<elapsedtime1<<endl;
+        //cout<<"The endtime2-endtime1 is  "<<elapsedtime2<<endl;
+
+
         cout<<"The sum of array A is  "<<sum<<endl;
         cout<<"The sum square of array A is  "<<sum_square<<endl;
     }
