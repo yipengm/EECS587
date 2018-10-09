@@ -1,0 +1,16 @@
+#PBS -N eecs587_hw3_2000_500_4
+#PBS -A eecs587f18_flux
+#PBS -l qos=flux
+#PBS -l procs=1,walltime=00:05:00
+#PBS -l pmem=100mb
+#PBS -q flux
+#PBS -m abe
+#PBS -M baowenbo@umich.edu
+#PBS -j oe
+#PBS -V
+
+echo "I ran on:"
+cat $PBS_NODEFILE
+# Let PBS handle your output
+cd /home/yipengm/EECS587/EECS587
+mpirun -np 4 ./out 2000 500
