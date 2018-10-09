@@ -5,7 +5,7 @@
 #PBS -l pmem=100mb
 #PBS -q flux
 #PBS -m abe
-#PBS -M baowenbo@umich.edu
+#PBS -M yipengm@umich.edu
 #PBS -j oe
 #PBS -V
 
