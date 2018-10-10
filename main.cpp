@@ -3,9 +3,18 @@
 #include <cmath>
 #include <stdlib.h>
 #include <algorithm>
-#include "f.h" 
+
 
 using namespace std;
+double f(double x) {
+  double y;
+  int i;
+  y = x;
+  for(i = 1;i<=10;i++){
+    y += sin(x*i)/pow(2,i);
+  }
+  return y;
+}
 
 int main(int argc, char **argv){
     int m = atoi(argv[1]);
