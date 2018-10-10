@@ -21,7 +21,6 @@ int main(int argc, char **argv){
 
     int process_rown;
     int process_coln;
-
     if (p==1) {
         process_rown = 1;
         process_coln = 1;
@@ -30,6 +29,8 @@ int main(int argc, char **argv){
         process_rown = sqrt(round(double(m)/double(n)*double(p)));
         process_coln = sqrt(round(double(n)/double(m)*double(p)));
     }
+
+
 
     int ms = (m%process_rown==0)?(m/process_rown):floor(m/process_rown)+1;			//the size of every subarray on each processor
     int ns = (n%process_coln==0)?(n/process_coln):floor(n/process_coln)+1;
@@ -102,15 +103,15 @@ int main(int argc, char **argv){
     int i_start;
     int j_start;
 
-    double send_to_top[ns] = {0};             
-    double send_to_left[ms] = {0};             
-    double send_to_right[ms] = {0}; 
-    double send_to_bottom[ns] = {0}; 
+    double send_to_top[ns];             
+    double send_to_left[ms];             
+    double send_to_right[ms]; 
+    double send_to_bottom[ns]; 
 
-    double receive_from_bottom[ns] = {0};       //receive a one-line array from bottom subarray
-    double receive_from_top[ns] = {0};        //receive a one-line array to right subarray
-    double receive_from_right[ms] = {0};      //rceive a single value to bottomright subarray
-    double receive_from_left[ms] = {0};
+    double receive_from_bottom[ns];       //receive a one-line array from bottom subarray
+    double receive_from_top[ns];        //receive a one-line array to right subarray
+    double receive_from_right[ms];      //rceive a single value to bottomright subarray
+    double receive_from_left[ms];
 
     //initialize array A
     if(pid_x!=process_rown-1&&pid_y!=process_coln-1){
