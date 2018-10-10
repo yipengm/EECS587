@@ -1,7 +1,7 @@
 #ifndef F_H
 #define F_H
 #include <cmath>
-double f(double x) {
+double func(double x) {
   double y;
   int i;
   y = x;
