@@ -1,9 +1,9 @@
-#ifndef F_H
-#define F_H
+#ifndef FHEAVY_H
+#define FHEAVY_H
 
 #include <cmath>
 
-double f(double x) {
+double fheavy(double x) {
     double ans = 0;
     for (int i = 100; i >= 1; --i) {
         double temp = 0;
