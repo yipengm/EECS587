@@ -27,7 +27,7 @@ struct comparator{
 
 double f(double x);
 
-void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval);
+void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval,double s);
 
 
 int main(int argc, char **argv){
@@ -111,7 +111,7 @@ int main(int argc, char **argv){
     			else{
     				local_Maxout=max(max(local_interval.fa,local_interval.fb),Maxout);
 					local_update=true;
-					split_interval(local_interval1,local_interval2,local_interval);			
+					split_interval(local_interval1,local_interval2,local_interval,s);			
 				}
 				if(local_update){
 					#pragma omp critical
@@ -161,7 +161,7 @@ int main(int argc, char **argv){
     				local_done=false;			
 					local_Maxout=max(max(local_interval.fa,local_interval.fb),Maxout);
 					local_update=true;
-					split_interval(local_interval1,local_interval2,local_interval);
+					split_interval(local_interval1,local_interval2,local_interval,s);
     			}
     			else local_done=true;
     			if(!local_update){
@@ -207,7 +207,7 @@ double f(double x) {
 }
 
 
-void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval) {
+void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval,double s) {
     local_interval1.a=local_interval.a;
     local_interval1.b=(local_interval.a+local_interval.b)/2;
     local_interval1.fa=local_interval.fa;
