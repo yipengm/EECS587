@@ -26,19 +26,22 @@ struct comparator{
 };
 
 
+
+
+
 int main(int argc, char **argv){
 	
-	double a=stod(argv[1]);	
-	double b=stod(argv[2]);	
-	double e=stod(argv[3]);	
-	double s=stod(argv[4]);	
+	double a=atof(argv[1]);	
+	double b=atof(argv[2]);	
+	double e=atof(argv[3]);	
+	double s=atof(argv[4]);	
 	int n;									
 	int id;									
 	double start_time;						 
 	double end_time;						
 	double total_time;					    
 
-	priority_queue<interval,vector<interval>,compare> MAXs;
+	priority_queue<interval,vector<interval>,comparator> MAXs;
 	
 	double Maxin;
     vector<bool>done;
@@ -218,6 +221,6 @@ int main(int argc, char **argv){
     total_time =end_time-start_time;
 
     printf("Time:  %f\n",total_time);
-	printf("Maximum: %f\n",M);
+	printf("Maximum: %f\n",Maxin);
 	return 0;
 }
