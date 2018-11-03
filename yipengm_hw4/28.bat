@@ -7,5 +7,5 @@
 set	-x	
 cd /home/yipengm/eecs587/EECS587/yipengm_hw4
 # run OpenMP program	
-export	OMP_NUM_THREADS=8
+export	OMP_NUM_THREADS=28
 ./hw4 1 100 0.000001 12
