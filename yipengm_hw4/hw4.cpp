@@ -121,7 +121,7 @@ int main(int argc, char **argv){
 					local_interval2.b=local_interval.b;
 					local_interval2.fa=local_interval1.fb;
 					local_interval2.fb=local_interval.fb;
-					local_interval2.maximum=(local_interval2.fa+local_interval2.fb+s*(local_interval2.b-local_interval2.a))/2				
+					local_interval2.maximum=(local_interval2.fa+local_interval2.fb+s*(local_interval2.b-local_interval2.a))/2;				
 				}
 				if(local_update){
 					#pragma omp critical
