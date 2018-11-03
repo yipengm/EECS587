@@ -27,6 +27,8 @@ struct comparator{
 
 double f(double x);
 
+void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval);
+
 
 int main(int argc, char **argv){
 	
@@ -35,21 +37,22 @@ int main(int argc, char **argv){
 	double e=atof(argv[3]);	
 	double s=atof(argv[4]);	
 	int n;									
-	int id;									
-	double start_time;						 
-	double end_time;						
-	double total_time;					    
-
+	int id;														    
 	priority_queue<interval,vector<interval>,comparator> MAXs;
 	
-	double Maxin;
+	double Maxout;
     vector<bool>done;
     bool finish=false;
 
+
+    double start_time;                       
+    double end_time;                        
+    double total_time;
 	start_time = omp_get_wtime();
 
 	#pragma omp parallel private(id)	
 	{
+        //initialization
 		n = omp_get_num_threads();
     	id = omp_get_thread_num();		
     	#pragma omp single
@@ -66,14 +69,14 @@ int main(int argc, char **argv){
 			}
 
 			MAXs.push(sing_interval);
-			Maxin=max(sing_interval.fa,sing_interval.fb);
+			Maxout=max(sing_interval.fa,sing_interval.fb);
     	}
-    	
+
+    	//Master
     	if(id==0){				
-			//Master
 			interval local_interval;
 			vector<bool> master_done;
-			double local_Maxin;
+			double local_Maxout;
     		interval local_interval1;
     		interval local_interval2;
     		bool local_first=false;
@@ -93,34 +96,22 @@ int main(int argc, char **argv){
 				bool local_flag=true;
 				bool local_update=false;				
 
-    			if(Maxin+e>local_interval.maximum){
+    			if(Maxout+e>local_interval.maximum){
     				for(size_t i=1;i<done.size();i++){
     					local_flag=local_flag&master_done[i];
     				}
     				if(local_flag){
-    					//omp_set_lock(&lock);
     					#pragma omp critical
     					{
     						finish=true;
     					}    					
-    					//omp_unset_lock(&lock);
     					break;
     				}
     			}
     			else{
-    				local_Maxin=max(max(local_interval.fa,local_interval.fb),Maxin);
-
+    				local_Maxout=max(max(local_interval.fa,local_interval.fb),Maxout);
 					local_update=true;
-					local_interval1.a=local_interval.a;
-					local_interval1.b=(local_interval.a+local_interval.b)/2;
-					local_interval1.fa=local_interval.fa;
-					local_interval1.fb=f(local_interval1.b);
-					local_interval1.maximum=(local_interval1.fa+local_interval1.fb+s*(local_interval1.b-local_interval1.a))/2;//(fa+fb+s*(b-a))/2
-					local_interval2.a=(local_interval.a+local_interval.b)/2;
-					local_interval2.b=local_interval.b;
-					local_interval2.fa=local_interval1.fb;
-					local_interval2.fb=local_interval.fb;
-					local_interval2.maximum=(local_interval2.fa+local_interval2.fb+s*(local_interval2.b-local_interval2.a))/2;				
+					split_interval(local_interval1,local_interval2,local_interval);			
 				}
 				if(local_update){
 					#pragma omp critical
@@ -130,7 +121,7 @@ int main(int argc, char **argv){
 						local_interval=MAXs.top();	
     					MAXs.pop();
     					master_done=done;
-    					Maxin=local_Maxin;					
+    					Maxout=local_Maxout;					
     				}
     				
     			}
@@ -142,15 +133,11 @@ int main(int argc, char **argv){
     					master_done=done;					
     				}
     			}    								
-
-    			//count++;		
-				//printf("Finishing one time iteration %d\n",count);
     		}		
     	}
     	else{
-    		
     		interval local_interval;
-    		double local_Maxin;
+    		double local_Maxout;
     		interval local_interval1;
     		interval local_interval2;
     		bool local_done;
@@ -166,33 +153,17 @@ int main(int argc, char **argv){
     				}
     			}    			
     		}
-    		//printf("The total thread number is  %d.The thread %d starts\n",n ,id);
     		
     		while(!finish){  
     			bool local_update=false;			
 
-   				if(Maxin+e<local_interval.maximum){			
+   				if(Maxout+e<local_interval.maximum){			
     				local_done=false;			
-					
-					local_Maxin=max(max(local_interval.fa,local_interval.fb),Maxin);
-
+					local_Maxout=max(max(local_interval.fa,local_interval.fb),Maxout);
 					local_update=true;
-					local_interval1.a=local_interval.a;
-					local_interval1.b=(local_interval.a+local_interval.b)/2;
-					local_interval1.fa=local_interval.fa;
-					local_interval1.fb=f(local_interval1.b);
-					local_interval1.maximum=(local_interval1.fa+local_interval1.fb+s*(local_interval1.b-local_interval1.a))/2;
-					
-                    local_interval2.a=(local_interval.a+local_interval.b)/2;
-					local_interval2.b=local_interval.b;
-					local_interval2.fa=local_interval1.fb;
-					local_interval2.fb=local_interval.fb;
-					local_interval2.maximum=(local_interval2.fa+local_interval2.fb+s*(local_interval2.b-local_interval2.a))/2;    					
-
+					split_interval(local_interval1,local_interval2,local_interval);
     			}
-    			else{    					
-    				local_done=true;
-    			}
+    			else local_done=true;
     			if(!local_update){
     				#pragma omp critical
     				{    					
@@ -206,7 +177,7 @@ int main(int argc, char **argv){
     				{
     					MAXs.push(local_interval1);
 						MAXs.push(local_interval2);
-						Maxin=local_Maxin;
+						Maxout=local_Maxout;
 						done[id]=local_done;
 						local_interval=MAXs.top();	
     					MAXs.pop();						
@@ -220,7 +191,7 @@ int main(int argc, char **argv){
     total_time =end_time-start_time;
 
     printf("Time:  %f\n",total_time);
-	printf("Maximum: %f\n",Maxin);
+	printf("Maximum: %f\n",Maxout);
 	return 0;
 }
 
@@ -233,4 +204,19 @@ double f(double x) {
         ans += sin(x + temp) / pow(1.3, i);
     }
     return ans;
+}
+
+
+void split_interval(interval &local_interval1,interval &local_interval2, interval local_interval) {
+    local_interval1.a=local_interval.a;
+    local_interval1.b=(local_interval.a+local_interval.b)/2;
+    local_interval1.fa=local_interval.fa;
+    local_interval1.fb=f(local_interval1.b);
+    local_interval1.maximum=(local_interval1.fa+local_interval1.fb+s*(local_interval1.b-local_interval1.a))/2;
+    
+    local_interval2.a=(local_interval.a+local_interval.b)/2;
+    local_interval2.b=local_interval.b;
+    local_interval2.fa=local_interval1.fb;
+    local_interval2.fb=local_interval.fb;
+    local_interval2.maximum=(local_interval2.fa+local_interval2.fb+s*(local_interval2.b-local_interval2.a))/2;    
 }
