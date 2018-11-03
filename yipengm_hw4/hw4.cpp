@@ -7,7 +7,7 @@
 #include <vector>
 #include <stdio.h>
 #include <omp.h>
-#include "f.h" 
+#include "fheavy.h" 
 
 using namespace std;
 
@@ -58,8 +58,8 @@ int main(int argc, char **argv){
     		interval sing_interval;
     		sing_interval.a=a;
 			sing_interval.b=b;
-			sing_interval.fa=f(a);
-			sing_interval.fb=f(b);
+			sing_interval.fa=fheavy(a);
+			sing_interval.fb=fheavy(b);
 			sing_interval.maximum=(sing_interval.fa+sing_interval.fb+s*(b-a))/2;
 			done.resize(n);
 			for(int i=0;i<n;i++){
@@ -115,7 +115,7 @@ int main(int argc, char **argv){
 					local_interval1.a=local_interval.a;
 					local_interval1.b=(local_interval.a+local_interval.b)/2;
 					local_interval1.fa=local_interval.fa;
-					local_interval1.fb=f(local_interval1.b);
+					local_interval1.fb=fheavy(local_interval1.b);
 					local_interval1.maximum=(local_interval1.fa+local_interval1.fb+s*(local_interval1.b-local_interval1.a))/2;//(fa+fb+s*(b-a))/2
 					local_interval2.a=(local_interval.a+local_interval.b)/2;
 					local_interval2.b=local_interval.b;
@@ -181,7 +181,7 @@ int main(int argc, char **argv){
 					local_interval1.a=local_interval.a;
 					local_interval1.b=(local_interval.a+local_interval.b)/2;
 					local_interval1.fa=local_interval.fa;
-					local_interval1.fb=f(local_interval1.b);
+					local_interval1.fb=fheavy(local_interval1.b);
 					local_interval1.maximum=(local_interval1.fa+local_interval1.fb+s*(local_interval1.b-local_interval1.a))/2;
 					
                     local_interval2.a=(local_interval.a+local_interval.b)/2;
