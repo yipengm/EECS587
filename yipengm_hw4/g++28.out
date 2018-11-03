@@ -1,0 +1,6 @@
++ cd /home/yipengm/eecs587/EECS587/yipengm_hw4
++ export OMP_NUM_THREADS=28
++ OMP_NUM_THREADS=28
++ ./hw4 1 100 0.000001 12
+Time:  4.350550
+Maximum: 3.333333
