@@ -11,12 +11,6 @@
 
 using namespace std;
 
-struct comparator{
-    bool operator()(const interval &a,const interval &b){
-        return a.maximum<b.maximum;
-    }
-};
-
 struct interval{
 	double a;
 	double b;
@@ -25,6 +19,11 @@ struct interval{
 	double maximum;
 };
 
+struct comparator{
+    bool operator()(const interval &a,const interval &b){
+        return a.maximum<b.maximum;
+    }
+};
 
 
 int main(int argc, char **argv){
