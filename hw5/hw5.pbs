@@ -1,16 +1,17 @@
-#PBS -N eecs587_hw3_1000_4000_1
-#PBS -A eecs587f18_fluxg
-#PBS -l qos=flux
-#PBS -l procs=1,walltime=00:05:00
-#PBS -l pmem=100mb
-#PBS -q flux
-#PBS -m abe
+#!/bin/sh
+#PBS -S /bin/sh
+#PBS -N eecs587_assign5_1000
 #PBS -M yipengm@umich.edu
-#PBS -j oe
+#PBS -m abe
 #PBS -V
+#PBS -l nodes=1:gpus=1,walltime=00:05:00
+#PBS -l mem=2gb
+#PBS -l qos=flux
+#PBS -j oe
+#PBS -A eecs587-f17_fluxg
+#PBS -q fluxg 
 
 echo "I ran on:"
 cat $PBS_NODEFILE
 # Let PBS handle your output
-cd /home/yipengm/EECS587/EECS587
-mpirun -np 1 ./out 1000 4000
+cd /home/yipengm/EECS587/EECS587/hw5/assign5./assign5 1000
