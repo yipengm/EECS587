@@ -53,7 +53,7 @@ void iteration(double *d_A,double *d_B,int n)
         else if(local[3]<secnd_small){
           secnd_small = local[3];
         }
-        d_B[i]=scnd_small+d_A[i];
+        d_B[i]=secnd_small+d_A[i];
       }
     }    
 }
