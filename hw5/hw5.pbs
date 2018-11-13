@@ -14,4 +14,4 @@
 echo "I ran on:"
 cat $PBS_NODEFILE
 # Let PBS handle your output
-cd /home/yipengm/EECS587/EECS587/hw5/assign5./assign5 1000
+cd /home/yipengm/EECS587/EECS587/hw5/ ./hw5 1000
