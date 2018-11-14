@@ -1,0 +1,33 @@
+
+------------------------ /sw/arcts/centos7/modulefiles -------------------------
+   cuda/6.5    cuda/7.5    cuda/8.0.44 (D)    cuda/9.0 (L)    cuda/9.1
+
+------------------------- /sw/coe/centos7/modulefiles --------------------------
+   cuda/8.0.27rc
+
+  Where:
+   D:  Default Module
+   L:  Module is loaded
+
+Use "module spider" to find all possible modules.
+Use "module keyword key1 key2 ..." to search for all possible modules matching
+any of the "keys".
+
+
+I ran on:
+nyx7500
+The numbers of iterations is 1
+The numbers of iterations is 2
+The numbers of iterations is 3
+The numbers of iterations is 4
+The numbers of iterations is 5
+The numbers of iterations is 6
+The numbers of iterations is 7
+The numbers of iterations is 8
+The numbers of iterations is 9
+The numbers of iterations is 10
+The elapsed_time of the cuda program is  9.12669
+The sum of the matrix A after 10 iterations is  1.97807e+09
+The center of the matrix A after 10 iterations is  500.921
+The A(17,31) of the matrix A after 10 iterations is  541.703
+
