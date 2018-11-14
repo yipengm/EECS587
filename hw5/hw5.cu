@@ -168,6 +168,11 @@ int main(int argc, char **argv)
 
   size=n*n;
   sum_ptr=d_A;
+  cudaEventRecord(end);
+  
+  
+  cudaEventSynchronize(end);
+  cudaEventElapsedTime(&elapsedTime, start, end);
 
   while(grid!=0){
     sumblock<<<grid,block,block*sizeof(double)>>>(sum_ptr,size,sum_temp);
@@ -182,11 +187,7 @@ int main(int argc, char **argv)
     sum_ptr=sum_temp;
   }
   
-  cudaEventRecord(end);
-  
-  
-  cudaEventSynchronize(end);
-  cudaEventElapsedTime(&elapsedTime, start, end);
+
 
   cudaMemcpy(&sum, sum_temp, sizeof(double), cudaMemcpyDeviceToHost);
   cudaMemcpy(&center, (d_A+n/2*n+n/2), sizeof(double), cudaMemcpyDeviceToHost);
