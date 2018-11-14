@@ -18,5 +18,5 @@ cat $PBS_NODEFILE
 # Let PBS handle your output
 # cd <path/to/your/program/folder>
 cd /home/yipengm/EECS587/EECS587/hw5
-./hw5 2000
+./hw5.out 2000
 echo ""
